@@ -1,0 +1,201 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>video</title>
+  <link href="./css/video-js.css" rel="stylesheet">
+  <link href="./css/videojs-playlist-ui.css"  rel="stylesheet">
+  
+  <script src="./js/video.js"></script>
+  <script src="./js/videojs-playlist.js"></script>
+  <script src="./js/videojs-playlist-ui.js" ></script>
+  
+  	 <style>
+		.player-container{
+			background: #F7F080;
+			height:calc(56.25vw);
+			}
+		.video-js{
+			float:left;
+			width: 70% !important;
+			height:100%;
+			}
+		.vjs-playlist{
+			float:left;
+			width: 30%;
+			height:100%;
+			overflow:auto;
+  	}
+ 
+  </style>
+  
+  <style>
+	* {
+	margin: 0;
+	padding: 0;
+	}
+	
+    button {
+      margin: 1em;
+      width: 10em;
+    }
+
+    .options {
+      margin: 1em;
+    }
+
+    .autoadvance-group label {
+      margin: 10px;
+    }
+  </style>
+  
+  <style>
+		/*暂停时显示播放按钮*/
+		.vjs-paused .vjs-big-play-button,.vjs-paused.vjs-has-started .vjs-big-play-button {
+			display: block;
+		}
+		
+		/*****START 播放按钮变○圆形 START*****/
+		.video-js .vjs-big-play-button{
+			font-size: 2.5em;
+			line-height: 2.3em;
+			height: 2.5em;
+			width: 2.5em;
+			-webkit-border-radius: 2.5em;
+			-moz-border-radius: 2.5em;
+			border-radius: 2.5em;
+			background-color: #73859f;
+			background-color: rgba(115,133,159,.5);
+			border-width: 0.15em;
+			margin-top: -1.25em;
+			margin-left: -1.75em;
+		}
+		/* 中间的播放箭头 */
+		.vjs-big-play-button .vjs-icon-placeholder {
+			font-size: 1.63em;
+		}
+		/* 加载圆圈 */
+		.vjs-loading-spinner {
+			font-size: 2.5em;
+			width: 2em;
+			height: 2em;
+			border-radius: 1em;
+			margin-top: -1em;
+			margin-left: -1.5em;
+		}
+	</style>
+
+ 
+</head>
+<body>
+
+    <script type="text/javascript">
+        function getParams(key) {
+            var reg = new RegExp("(^|&)" + key + "=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) {
+                return unescape(r[2]);
+            }
+            return null;
+        };
+        console.log("参数list:"+getParams("list"));//输出list
+		var listfilename = getParams("list");
+		document.write('<scr'+'ipt src="' + '/video/video-list/' + listfilename + '.js"></scr' + 'ipt>');
+    </script>
+	
+		<div class="player-container">
+		<video id="example" class="video-js vjs-default-skin vjs-big-play-centered vjs-v7 vjs-16-9 vjs-user-active" playsinline webkit-playsinline autoplay controls preload="auto" height="100%" 
+	  		data-setup='{"techOrder": ["html5","flash"]}'>
+
+		</video>
+		 <div class="vjs-playlist playlist-container">
+	      <!--
+	        The contents of this element will be filled based on the
+	        currently loaded playlist
+	      -->
+	    </div>
+		</div>
+
+	<script>
+	var i = 0;
+    const player = videojs(document.querySelector('video'), {
+	    controls: true,
+		autoplay: true,
+		autoadvance: 0,
+		inactivityTimeout: 0,
+		preload: 'auto',
+		fluid: true,
+    });
+
+    //try {
+      // try on ios
+    //  player.volume(0);
+    //} catch (e) {}
+	
+	
+	
+    player.on([
+      'duringplaylistchange',
+      'playlistchange',
+      'beforeplaylistitem',
+      'playlistitem',
+      'playlistsorted'
+    ], function(e) {
+      videojs.log('player saw "' + e.type + '"');
+    });
+	
+	player.on('ended',function(){
+		if(player.playlist.currentIndex() == player.playlist.lastIndex())
+		{
+			player.playlist.first();
+		}
+		else
+		{
+			player.playlist.next();
+		}
+			
+		
+	});
+
+	player.on('play', function() {
+		console.log('视频开始播放');
+		// 在这里添加你想要在视频开始播放时执行的代码
+		// 当你想要获取当前播放的文件名时
+		var currentSrc = player.currentSrc();
+			console.log('当前播放的文件 URL:', currentSrc);
+
+			const webHookUrl = 'https://oapi.dingtalk.com/robot/send?access_token=ef286fc97a29d38b270b0e90d2a6f3413efa23bf9fcebe06d6db9ec9ea06c325';
+				
+			const message = {
+				msgtype: 'text',
+				text: {
+					content: '扫码视听'
+				}
+			};
+			message.text.content =  '扫码视听' + currentSrc;
+			
+			fetch(webHookUrl, {
+				method: 'POST',
+				mode: 'no-cors',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(message)
+			})
+			.then(data => console.log('Success:', data))
+			.catch((error) => console.log('Error:', error));
+
+  	});
+	
+
+	player.playlistUi();
+	player.playlist(videoList);
+	
+	// Play the currently loaded playlist item
+	player.play();
+
+	
+  </script>
+
+</body>
+</html>

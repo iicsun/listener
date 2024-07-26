@@ -1,0 +1,176 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>video</title>
+  <link href="./css/video-js-mobile.css" rel="stylesheet">
+  <link href="./css/videojs-playlist-ui-mobile.css"  rel="stylesheet">
+  
+  <script src="./js/video.js"></script>
+  <script src="./js/videojs-playlist.js"></script>
+  <script src="./js/videojs-playlist-ui.js" ></script>
+  
+  	 <style>
+		.player-container{
+			background: #000000;
+			height:100vh;
+			}
+		.video-js{
+			float:left;
+			width: 100% !important;
+			height:200px;
+			}
+		.vjs-playlist{
+			float:left;
+			width: 100%;
+			height:calc(100vh - 200px); 
+			overflow:auto;
+  			}
+
+		/*暂停时显示播放按钮*/
+		.vjs-paused .vjs-big-play-button,.vjs-paused.vjs-has-started .vjs-big-play-button {
+			display: block;
+		}
+		.video-js .vjs-big-play-button{
+			font-size: 2.5em;
+			line-height: 2.3em;
+			height: 2.5em;
+			width: 2.5em;
+			-webkit-border-radius: 2.5em;
+			-moz-border-radius: 2.5em;
+			border-radius: 2.5em;
+			background-color: #73859f;
+			background-color: rgba(115,133,159,.5);
+			border-width: 0.15em;
+			margin-top: -1.25em;
+			margin-left: -1.75em;
+		}
+		/* 中间的播放箭头 */
+		.vjs-big-play-button .vjs-icon-placeholder {
+			font-size: 1.63em;
+		}
+		/* 加载圆圈 */
+		.vjs-loading-spinner {
+			font-size: 2.5em;
+			width: 2em;
+			height: 2em;
+			border-radius: 1em;
+			margin-top: -1em;
+			margin-left: -1.5em;
+		}
+  </style>
+  
+  <style>
+	* {
+	margin: 0;
+	padding: 0;
+	}
+
+    button {
+      margin: 1em;
+      width: 10em;
+    }
+
+    .options {
+      margin: 1em;
+    }
+
+    .autoadvance-group label {
+      margin: 10px;
+    }
+  </style>
+  
+
+
+ 
+</head>
+<body>
+
+    <script type="text/javascript">
+        function getParams(key) {
+            var reg = new RegExp("(^|&)" + key + "=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) {
+                return unescape(r[2]);
+            }
+            return null;
+        };
+        console.log("参数list:"+getParams("list"));//输出list
+		var listfilename = getParams("list");
+		document.write('<scr'+'ipt src="' + '/video/video-list/' + listfilename + '.js"></scr' + 'ipt>');
+    </script>
+	
+		<div class="player-container">
+			
+			<video id="example" class="video-js vjs-default-skin vjs-big-play-button vjs-big-play-centered" playsinline webkit-playsinline autoplay controls preload="auto" height="30px" 
+				data-setup='{"techOrder": ["html5","flash"]}'>
+
+			</video>
+			<div class="vjs-playlist playlist-container">
+				<!--
+				  The contents of this element will be filled based on the
+				  currently loaded playlist
+				-->
+			</div>
+
+		</div>
+
+	<script>
+	var i = 0;
+    const player = videojs(document.querySelector('video'), {
+	    controls: true,
+		autoplay: true,
+		autoadvance: 0,
+		inactivityTimeout: 0,
+		preload: 'auto',
+		fluid: false,
+		fullscreenToggle: false,
+		controlBar: {
+			volumePanel: {
+			inline: false
+			}
+  },
+    });
+
+    //try {
+      // try on ios
+    //  player.volume(0);
+    //} catch (e) {}
+	
+	
+	
+    player.on([
+      'duringplaylistchange',
+      'playlistchange',
+      'beforeplaylistitem',
+      'playlistitem',
+      'playlistsorted'
+    ], function(e) {
+      videojs.log('player saw "' + e.type + '"');
+    });
+	
+	player.on('ended',function(){
+		if(player.playlist.currentIndex() == player.playlist.lastIndex())
+		{
+			player.playlist.first();
+		}
+		else
+		{
+			player.playlist.next();
+		}
+			
+		
+	});
+	
+
+	player.playlistUi();
+	player.playlist(videoList);
+	
+	// Play the currently loaded playlist item
+	player.play();
+
+
+  </script>
+
+</body>
+</html>
